@@ -1,4 +1,4 @@
-# [<img src="https://s3.vpndetection.io/vpndetection-public/brand/mark.svg" alt="VPNDetection" width="24"/>](https://vpndetection.io/) VPNDetection Symfony Bundle
+# [<img src="https://s3.vpndetection.io/vpndetection-public/brand/mark.svg" alt="VPNDetection" height="28"/>](https://vpndetection.io/) VPNDetection Symfony Bundle
 
 [![Packagist](https://img.shields.io/packagist/v/vpndetection/symfony.svg)](https://packagist.org/packages/vpndetection/symfony)
 [![license](https://img.shields.io/packagist/l/vpndetection/symfony.svg)](LICENSE)
