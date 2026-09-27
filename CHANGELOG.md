@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 2.0.4 are described by their release commits.
 
+## 2.0.5 - 2026-09-27
+
+### Features
+
+- Require vpndetection 4.4.0: OauthMetadata carries clientIdMetadataDocumentSupported ([`8e9e4fa`](https://github.com/vpndetection-io/sdk-php-symfony/commit/8e9e4fa991f407ecf30fb6cef75b849d1a99e89d))
+
 ## 2.0.4 - 2026-09-23
 
 ### Fixes
