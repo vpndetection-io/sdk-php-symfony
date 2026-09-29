@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 2.0.4 are described by their release commits.
 
+## 2.0.7 - 2026-09-29
+
+### Fixes
+
+- Require vpndetection 4.4.2: 26 more reserved ranges are answered locally ([`ee224c4`](https://github.com/vpndetection-io/sdk-php-symfony/commit/ee224c47ba1cf9401b1eb550d452bfb063f57752))
+
 ## 2.0.6 - 2026-09-28
 
 ### Fixes
