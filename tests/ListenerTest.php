@@ -14,6 +14,7 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\KernelEvents;
 use VPNDetection\Client;
 use VPNDetection\Middleware\Core;
@@ -262,6 +263,37 @@ final class ListenerTest extends TestCase
             $listener = $builder->get('vpndetection.listener');
             self::assertInstanceOf(VPNDetectionListener::class, $listener);
         }
+    }
+
+    /**
+     * A condition as `config/packages/vpndetection.yaml` gives it, through the bundle's
+     * own config tree and container. Every other test builds the core by hand, so a key
+     * the bundle dropped on its way to the core would pass them all.
+     */
+    public function testAConfiguredConditionRefusesTheRequest(): void
+    {
+        $builder = new ContainerBuilder();
+        // What the kernel sets before it loads any bundle's configuration.
+        $builder->setParameter('kernel.environment', 'test');
+        $builder->setParameter('kernel.build_dir', sys_get_temp_dir());
+        (new VPNDetectionBundle())->getContainerExtension()->load([[
+            'block_condition' => ['isVpn' => true],
+            'client_ip_header' => 'CF-Connecting-IP',
+        ]], $builder);
+        // The one thing YAML cannot name is the client answering, which is the stub here.
+        $builder->register('test.client', Client::class)->setSynthetic(true)->setPublic(true);
+        $builder->getDefinition('vpndetection.listener')->getArgument(0)->getArgument(0)
+            ->replaceArgument(0, new Reference('test.client'));
+        $builder->compile();
+        $stub = self::serving(['ip' => self::PUBLIC_IP, 'is_vpn' => true]);
+        $builder->set('test.client', self::client($stub));
+
+        $listener = $builder->get('vpndetection.listener');
+        self::assertInstanceOf(VPNDetectionListener::class, $listener);
+        $response = self::dispatch($listener, self::request(['CF-Connecting-IP' => self::PUBLIC_IP]));
+
+        self::assertSame(403, $response?->getStatusCode());
+        self::assertCount(1, $stub->calls);
     }
 
     public function testCorpusRefusesAConditionThatConstrainsNothing(): void
