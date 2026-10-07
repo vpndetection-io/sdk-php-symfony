@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 2.0.4 are described by their release commits.
 
+## 2.0.10 - 2026-10-07
+
+### Fixes
+
+- Require vpndetection 4.5.1: unreadable answers retry as server_error ([`2f514bd`](https://github.com/vpndetection-io/sdk-php-symfony/commit/2f514bd7dc200b928e2e30aad923c549fcf4cd94))
+
 ## 2.0.9 - 2026-10-04
 
 ### Features
