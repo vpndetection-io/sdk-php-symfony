@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 2.0.4 are described by their release commits.
 
+## 2.2.0 - 2026-10-11
+
+### Features
+
+- Skip the paths in skip_paths, which the bundle's config now takes ([`fe30882`](https://github.com/vpndetection-io/sdk-php-symfony/commit/fe3088272a0d78065f30d6f557994c3ba7c4ccd9))
+
 ## 2.1.1 - 2026-10-10
 
 ### Fixes
