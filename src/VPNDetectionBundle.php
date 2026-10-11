@@ -38,6 +38,19 @@ final class VPNDetectionBundle extends AbstractBundle
                 // Anything more exotic means replacing the vpndetection.listener
                 // service, which is the Symfony answer rather than a config key.
                 ->scalarNode('client_ip_header')->defaultNull()->end()
+                // Paths never looked up, such as a health check or static
+                // assets: each a regular expression matched against the path,
+                // as `access_control`'s `path` is. Refused here if one will not
+                // compile, rather than skipping nothing on every request.
+                ->arrayNode('skip_paths')
+                    ->scalarPrototype()
+                        ->validate()
+                            ->ifTrue(static fn (mixed $pattern): bool => !is_string($pattern)
+                                || @preg_match('{' . $pattern . '}', '') === false)
+                            ->thenInvalid('%s is not a regular expression')
+                        ->end()
+                    ->end()
+                ->end()
             ->end();
     }
 
@@ -55,6 +68,7 @@ final class VPNDetectionBundle extends AbstractBundle
             $config['block_condition'] ?? null,
             (bool) ($config['fail_closed'] ?? false),
             (string) ($config['on_missing_field'] ?? 'warn'),
+            self::skip($config['skip_paths'] ?? []),
         ]);
 
         $header = $config['client_ip_header'] ?? null;
@@ -76,5 +90,17 @@ final class VPNDetectionBundle extends AbstractBundle
         $listener->setPublic(true);
 
         $builder->setDefinition('vpndetection.listener', $listener);
+    }
+
+    /** @param list<string> $paths */
+    private static function skip(array $paths): ?Definition
+    {
+        if ($paths === []) {
+            return null;
+        }
+        $skip = new Definition('Closure');
+        $skip->setFactory([Skips::class, 'paths']);
+        $skip->setArguments([array_values($paths)]);
+        return $skip;
     }
 }

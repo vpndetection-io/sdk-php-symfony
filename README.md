@@ -92,6 +92,13 @@ The request is let through, and the reason is on the answer's `error`. Our outag
 
 Answers are cached for an hour in the client, and private addresses never leave the process. Under PHP-FPM, mod_php or PHP's built-in server the application, and the client with it, is built afresh for every request, so there every request that reaches the middleware is a lookup and the cache only saves a second one within it; a runtime that keeps the application between requests keeps the cache too. A lookup is one request to our API, bounded at 2.5 seconds by default and not retried — on a request path, failing open quickly beats holding a visitor while we try again.
 
+Skip the paths that never need an answer, such as a health check or static assets. Each is a regular expression matched against the path, the way `access_control`'s `path` is, and a skipped request carries no lookup:
+
+```yaml
+vpndetection:
+    skip_paths: ["^/healthz", "^/assets/"]
+```
+
 Beyond a few million distinct visitors a day, stop calling the API per request: [download the dataset](https://vpndetection.io/#databases) and look addresses up locally instead.
 
 ## Absent is not false

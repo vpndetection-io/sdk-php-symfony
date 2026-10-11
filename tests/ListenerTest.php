@@ -296,6 +296,50 @@ final class ListenerTest extends TestCase
         self::assertCount(1, $stub->calls);
     }
 
+    /**
+     * `skip_paths` as `config/packages/vpndetection.yaml` gives it: a matching path is
+     * never looked up and carries no answer, and any other path still is.
+     */
+    public function testAConfiguredSkipPathIsNeverLookedUp(): void
+    {
+        $builder = new ContainerBuilder();
+        $builder->setParameter('kernel.environment', 'test');
+        $builder->setParameter('kernel.build_dir', sys_get_temp_dir());
+        (new VPNDetectionBundle())->getContainerExtension()->load([[
+            'client_ip_header' => 'CF-Connecting-IP',
+            'skip_paths' => ['^/healthz', '^/assets/'],
+        ]], $builder);
+        $builder->register('test.client', Client::class)->setSynthetic(true)->setPublic(true);
+        $builder->getDefinition('vpndetection.listener')->getArgument(0)->getArgument(0)
+            ->replaceArgument(0, new Reference('test.client'));
+        $builder->compile();
+        $stub = self::serving(['ip' => self::PUBLIC_IP, 'is_vpn' => true]);
+        $builder->set('test.client', self::client($stub));
+        $listener = $builder->get('vpndetection.listener');
+        self::assertInstanceOf(VPNDetectionListener::class, $listener);
+
+        foreach (['/healthz', '/healthz/db', '/assets/app.css'] as $path) {
+            $request = Request::create($path, server: ['REMOTE_ADDR' => '127.0.0.1', 'HTTP_CF_CONNECTING_IP' => self::PUBLIC_IP]);
+            self::assertNull(self::dispatch($listener, $request));
+            self::assertNull(VPNDetectionListener::lookup($request));
+        }
+        self::assertCount(0, $stub->calls);
+
+        $request = Request::create('/checkout', server: ['REMOTE_ADDR' => '127.0.0.1', 'HTTP_CF_CONNECTING_IP' => self::PUBLIC_IP]);
+        self::dispatch($listener, $request);
+        self::assertTrue(VPNDetectionListener::lookup($request)?->result?->isVpn);
+        self::assertCount(1, $stub->calls);
+    }
+
+    public function testASkipPathThatIsNotARegularExpressionIsRefused(): void
+    {
+        $builder = new ContainerBuilder();
+        $builder->setParameter('kernel.environment', 'test');
+        $builder->setParameter('kernel.build_dir', sys_get_temp_dir());
+        $this->expectException(\Symfony\Component\Config\Definition\Exception\InvalidConfigurationException::class);
+        (new VPNDetectionBundle())->getContainerExtension()->load([['skip_paths' => ['^/(unclosed']]], $builder);
+    }
+
     public function testCorpusRefusesAConditionThatConstrainsNothing(): void
     {
         foreach (self::corpus()['invalidConditions'] as $case) {
