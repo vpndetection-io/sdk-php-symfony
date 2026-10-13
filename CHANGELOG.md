@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 2.0.4 are described by their release commits.
 
+## 2.3.0 - 2026-10-13
+
+### Features
+
+- Keep answers in the app's cache pool between requests ([`016f6c4`](https://github.com/vpndetection-io/sdk-php-symfony/commit/016f6c4e6828a09e5384d467c819539a14aae78c))
+
 ## 2.2.0 - 2026-10-11
 
 ### Features
