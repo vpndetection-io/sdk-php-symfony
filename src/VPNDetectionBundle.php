@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace VPNDetection\Symfony;
 
+use Psr\SimpleCache\CacheInterface;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 use VPNDetection\Middleware\Core;
 use VPNDetection\Middleware\Options;
@@ -42,6 +45,11 @@ final class VPNDetectionBundle extends AbstractBundle
                 // assets: each a regular expression matched against the path,
                 // as `access_control`'s `path` is. Refused here if one will not
                 // compile, rather than skipping nothing on every request.
+                // The cache pool answers are kept in between requests: under
+                // PHP-FPM the client, and a cache of its own, lasts one request.
+                // Unset, `cache.app` where FrameworkBundle defines it; false keeps
+                // them in the client alone.
+                ->scalarNode('cache_pool')->defaultNull()->end()
                 ->arrayNode('skip_paths')
                     ->scalarPrototype()
                         ->validate()
@@ -69,6 +77,8 @@ final class VPNDetectionBundle extends AbstractBundle
             (bool) ($config['fail_closed'] ?? false),
             (string) ($config['on_missing_field'] ?? 'warn'),
             self::skip($config['skip_paths'] ?? []),
+            null,
+            self::store($config['cache_pool'] ?? null),
         ]);
 
         $header = $config['client_ip_header'] ?? null;
@@ -90,6 +100,21 @@ final class VPNDetectionBundle extends AbstractBundle
         $listener->setPublic(true);
 
         $builder->setDefinition('vpndetection.listener', $listener);
+    }
+
+    private static function store(string|bool|null $pool): ?Definition
+    {
+        if ($pool === false || $pool === '') {
+            return null;
+        }
+        // The default pool may be absent without FrameworkBundle; one named here may not.
+        $reference = $pool === null || $pool === true
+            ? new Reference('cache.app', ContainerInterface::IGNORE_ON_INVALID_REFERENCE)
+            : new Reference($pool);
+        $store = new Definition(CacheInterface::class);
+        $store->setFactory([Stores::class, 'psr16']);
+        $store->setArguments([$reference]);
+        return $store;
     }
 
     /** @param list<string> $paths */

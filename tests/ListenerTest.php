@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace VPNDetection\Symfony\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Psr16Cache;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,6 +37,9 @@ use VPNDetection\Symfony\VPNDetectionListener;
 final class ListenerTest extends TestCase
 {
     private const PUBLIC_IP = '45.83.91.1';
+
+    /** An origin that refuses every connection, so an answer can only come from a cache. */
+    private const REFUSED = 'http://127.0.0.1:9';
 
     /** @return array<string, mixed> */
     private static function corpus(): array
@@ -329,6 +335,58 @@ final class ListenerTest extends TestCase
         self::dispatch($listener, $request);
         self::assertTrue(VPNDetectionListener::lookup($request)?->result?->isVpn);
         self::assertCount(1, $stub->calls);
+    }
+
+    /**
+     * Under PHP-FPM the container, and the client in it, is built for every request,
+     * so only the framework's pool carries an answer from one request to the next.
+     * Another client sharing the pool writes the answer, and the bundle's own client
+     * reaches only an origin that refuses it: it can answer from the pool alone.
+     */
+    public function testTheBundleKeepsAnswersInTheFrameworksPool(): void
+    {
+        $pool = new ArrayAdapter();
+        $stub = self::serving(['ip' => self::PUBLIC_IP, 'is_vpn' => true]);
+        (new Client(new Options(
+            apiKey: 'k',
+            baseUrl: self::REFUSED,
+            cacheStore: new Psr16Cache($pool),
+            httpClient: $stub->client,
+        )))->lookup(self::PUBLIC_IP);
+        $config = ['api_key' => 'k', 'base_url' => self::REFUSED, 'client_ip_header' => 'CF-Connecting-IP'];
+
+        foreach ([[], ['cache_pool' => 'cache.app']] as $pooled) {
+            $request = self::request(['CF-Connecting-IP' => self::PUBLIC_IP]);
+            self::dispatch(self::compiled([...$config, ...$pooled], $pool), $request);
+            self::assertTrue(VPNDetectionListener::lookup($request)?->result?->isVpn);
+        }
+        self::assertCount(1, $stub->calls);
+
+        $request = self::request(['CF-Connecting-IP' => self::PUBLIC_IP]);
+        self::dispatch(self::compiled([...$config, 'cache_pool' => false], $pool), $request);
+        self::assertNull(VPNDetectionListener::lookup($request)?->result);
+        self::assertNotNull(VPNDetectionListener::lookup($request)?->error);
+    }
+
+    public function testANamedPoolThatDoesNotExistIsRefused(): void
+    {
+        $this->expectException(ServiceNotFoundException::class);
+        self::compiled(['cache_pool' => 'app.missing'], new ArrayAdapter());
+    }
+
+    /** @param array<string, mixed> $config */
+    private static function compiled(array $config, ArrayAdapter $pool): VPNDetectionListener
+    {
+        $builder = new ContainerBuilder();
+        $builder->setParameter('kernel.environment', 'test');
+        $builder->setParameter('kernel.build_dir', sys_get_temp_dir());
+        (new VPNDetectionBundle())->getContainerExtension()->load([$config], $builder);
+        $builder->register('cache.app', ArrayAdapter::class)->setSynthetic(true)->setPublic(true);
+        $builder->compile();
+        $builder->set('cache.app', $pool);
+        $listener = $builder->get('vpndetection.listener');
+        self::assertInstanceOf(VPNDetectionListener::class, $listener);
+        return $listener;
     }
 
     public function testASkipPathThatIsNotARegularExpressionIsRefused(): void
