@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 2.0.4 are described by their release commits.
 
+## 2.3.1 - 2026-10-15
+
+### Fixes
+
+- Require vpndetection 4.6.1: OAuth discovery and device authorization retry an unreadable answer ([`08fbba8`](https://github.com/vpndetection-io/sdk-php-symfony/commit/08fbba8b8c090dc386dfd8e59280bf86176b5069))
+
 ## 2.3.0 - 2026-10-13
 
 ### Features
