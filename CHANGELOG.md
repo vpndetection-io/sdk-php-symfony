@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 2.0.4 are described by their release commits.
 
+## 2.3.2 - 2026-10-16
+
+### Fixes
+
+- Require vpndetection 4.6.2: the spec re-pinned to 2026.10.15 ([`8b6b291`](https://github.com/vpndetection-io/sdk-php-symfony/commit/8b6b291bbfde545889343d8525012eb2f06a7560))
+
 ## 2.3.1 - 2026-10-15
 
 ### Fixes
