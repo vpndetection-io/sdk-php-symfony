@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 2.0.4 are described by their release commits.
 
+## 2.3.3 - 2026-10-17
+
+### Features
+
+- Require vpndetection 4.7.0: OauthMetadata carries registration_endpoint ([`384329b`](https://github.com/vpndetection-io/sdk-php-symfony/commit/384329bdec99572ade889d9a6a2c08e0e1c94a2f))
+
 ## 2.3.2 - 2026-10-16
 
 ### Fixes
