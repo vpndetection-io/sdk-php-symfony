@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 2.0.4 are described by their release commits.
 
+## 2.3.5 - 2026-10-19
+
+### Fixes
+
+- Require vpndetection 4.9.0: num_ports and num_proxies in the pubproxy detail ([`e2da4da`](https://github.com/vpndetection-io/sdk-php-symfony/commit/e2da4da1a5c29717febf961d0311efab6af01244))
+
 ## 2.3.4 - 2026-10-18
 
 ### Fixes
