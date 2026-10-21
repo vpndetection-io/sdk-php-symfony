@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 2.0.4 are described by their release commits.
 
+## 2.3.7 - 2026-10-21
+
+### Fixes
+
+- Require vpndetection 4.11.0, which refuses an answer of the wrong type ([`efe5df5`](https://github.com/vpndetection-io/sdk-php-symfony/commit/efe5df55f5d60098c88cd0aeb47f4043dfa21a75))
+
 ## 2.3.6 - 2026-10-20
 
 ### Features
