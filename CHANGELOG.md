@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 2.0.4 are described by their release commits.
 
+## 2.3.9 - 2026-10-30
+
+### Fixes
+
+- Require vpndetection 4.11.2: a lowercase t or z in a date-time reads, a final newline is refused ([`06b1867`](https://github.com/vpndetection-io/sdk-php-symfony/commit/06b186722509e3d774e1c4b02f57f5ae754dcd1e))
+
 ## 2.3.8 - 2026-10-26
 
 ### Fixes
