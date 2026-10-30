@@ -6,7 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "vpndetection/vpndetection": "^4.11.1",
+        "vpndetection/vpndetection": "^4.11.2",
         "symfony/cache": "^6.4 || ^7.0 || ^8.0",
         "symfony/http-kernel": "^6.4 || ^7.0 || ^8.0",
         "symfony/http-foundation": "^6.4 || ^7.0 || ^8.0",
