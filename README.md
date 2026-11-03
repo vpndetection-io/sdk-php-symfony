@@ -3,7 +3,7 @@
 [![Packagist](https://img.shields.io/packagist/v/vpndetection/symfony.svg)](https://packagist.org/packages/vpndetection/symfony)
 [![license](https://img.shields.io/packagist/l/vpndetection/symfony.svg)](LICENSE)
 
-The official Symfony Bundle for the [VPNDetection](https://vpndetection.io) API.
+The official Symfony bundle for the [VPNDetection](https://vpndetection.io) API.
 
 It classifies the visitor behind each request — VPN, residential proxy, Tor, hosting, CDN, relay — and hands the answer to your code. Blocking is opt-in.
 
