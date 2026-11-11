@@ -15,7 +15,7 @@ composer require vpndetection/symfony
 
 Requires PHP 8.2 or newer and Symfony 6.4, 7 or 8.
 
-You need an API key. Create one in the [console](https://app.vpndetection.io); without one, lookups are limited to 60 a minute from each source address, and a server is a single source address, so a key is what makes this usable in production rather than optional.
+You need an API key. Create one in the [console](https://app.vpndetection.io); without one a lookup leaves out the hosting, CDN and proxy flags, so a key is what makes this usable in production rather than optional.
 
 Register the bundle and configure it:
 
