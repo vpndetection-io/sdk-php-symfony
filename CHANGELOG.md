@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 2.0.4 are described by their release commits.
 
+## 2.3.14 - 2026-11-11
+
+### Fixes
+
+- Require vpndetection 4.13.2: the Unlimited tier and its terms ([`e23eeb7`](https://github.com/vpndetection-io/sdk-php-symfony/commit/e23eeb7d34eb233f837c150e078259e3f11a85a3))
+
 ## 2.3.13 - 2026-11-11
 
 ### Fixes
