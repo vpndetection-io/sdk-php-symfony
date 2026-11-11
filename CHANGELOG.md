@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 2.0.4 are described by their release commits.
 
+## 2.3.16 - 2026-11-11
+
+### Fixes
+
+- Require vpndetection 4.14.1: the free plan's daily trial, never a trial key ([`9284c8b`](https://github.com/vpndetection-io/sdk-php-symfony/commit/9284c8bfc510954a0570c332725c1d34f0722ffa))
+
 ## 2.3.15 - 2026-11-11
 
 ### Features
