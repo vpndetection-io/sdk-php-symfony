@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 2.0.4 are described by their release commits.
 
+## 2.3.13 - 2026-11-11
+
+### Fixes
+
+- Require vpndetection 4.13.1: plainer words on lookups without a key ([`f377609`](https://github.com/vpndetection-io/sdk-php-symfony/commit/f377609a5789368dd2b1f795a7051d91ba1ef7e7))
+
 ## 2.3.12 - 2026-11-11
 
 ### Features
