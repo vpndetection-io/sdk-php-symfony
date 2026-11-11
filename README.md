@@ -15,7 +15,7 @@ composer require vpndetection/symfony
 
 Requires PHP 8.2 or newer and Symfony 6.4, 7 or 8.
 
-You need an API key. Create one in the [console](https://app.vpndetection.io); without one a lookup is on the Unlimited tier, for [non-commercial use](https://vpndetection.io/terms#no-key) only, and leaves out the hosting, CDN and proxy flags, so a key is what makes this usable in production rather than optional.
+You need an API key on a paid plan. Create one in the [console](https://app.vpndetection.io); without one a lookup is on the Unlimited tier and leaves out the hosting, CDN and proxy flags, so a paid plan is what makes this usable in production rather than optional. A new account can try every field, 100 lookups a day.
 
 Register the bundle and configure it:
 
@@ -110,7 +110,7 @@ Beyond a few million distinct visitors a day, stop calling the API per request: 
 
 ## Absent is not false
 
-Without a key a lookup leaves out `isHosting`, `isCdn` and the four proxy flags, and a free key leaves out `vpn` and the detail behind each flag. A property your plan does not include is `null`, which means "not in your plan" rather than "checked, and no".
+The Unlimited tier, with a key or without one, leaves out `isHosting`, `isCdn` and the four proxy flags, and of the detail behind each flag it answers only Tor's and relay's. A property your plan does not include is `null`, which means "not in your plan" rather than "checked, and no".
 
 ```php
 $lookup->result->isHosting ?? false   // when you only want the flag
