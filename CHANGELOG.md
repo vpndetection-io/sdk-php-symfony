@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 2.0.4 are described by their release commits.
 
+## 2.3.17 - 2026-11-15
+
+### Fixes
+
+- Require vpndetection 4.15.0: is_bogon on every answer, and provider_name beside each provider ([`85697b4`](https://github.com/vpndetection-io/sdk-php-symfony/commit/85697b4563e71bc72ba8f2439e171acc43c003ec))
+
 ## 2.3.16 - 2026-11-11
 
 ### Fixes
