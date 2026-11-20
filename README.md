@@ -3,9 +3,9 @@
 [![Packagist](https://img.shields.io/packagist/v/vpndetection/symfony.svg)](https://packagist.org/packages/vpndetection/symfony)
 [![license](https://img.shields.io/packagist/l/vpndetection/symfony.svg)](LICENSE)
 
-The official Symfony bundle for the [VPNDetection](https://vpndetection.io) API.
+The official Symfony bundle for the [VPNDetection](https://vpndetection.io) API: it checks each visitor's IP for VPN, Tor and proxy use, and can block them with a 403.
 
-It classifies the visitor behind each request — VPN, residential proxy, Tor, hosting, CDN, relay — and hands the answer to your code. Blocking is opt-in.
+It classifies the visitor behind each request as VPN, residential proxy, Tor, hosting, CDN or relay, and hands the answer to your code. Blocking is opt-in.
 
 ## Getting Started
 
@@ -15,7 +15,7 @@ composer require vpndetection/symfony
 
 Requires PHP 8.2 or newer and Symfony 6.4, 7 or 8.
 
-You need an API key on a paid plan. Create one in the [console](https://app.vpndetection.io); without one a lookup is on Unlimited, the free plan, and leaves out the hosting, CDN and proxy flags, so a paid plan is what makes this usable in production rather than optional. A free account tries every field.
+No API key needed to start. Without one, a lookup is on Unlimited, the free plan, which answers VPN, Tor and relay detection with no daily or monthly cap. A paid plan's key adds the hosting, CDN and proxy flags and the provider behind each flag: create one in the [console](https://app.vpndetection.io). A free account tries every field.
 
 Register the bundle and configure it:
 
@@ -41,9 +41,9 @@ public function index(Request $request): Response
 }
 ```
 
-The listener runs just before Symfony's router, so a blocked request costs no route match, and sub-requests are not classified again — every `forward()` and ESI fragment is the same visitor.
+The listener runs just before Symfony's router, so a blocked request costs no route match, and sub-requests are not classified again: every `forward()` and ESI fragment is the same visitor.
 
-By default nothing is blocked. Every request gets an answer and your own code decides what that means — which is usually what you want, because whether a VPN visitor is a problem depends entirely on what they are doing.
+By default nothing is blocked. Every request gets an answer and your own code decides what to do with it, since whether a VPN visitor is a problem depends on what they're doing.
 
 ## Blocking
 
@@ -66,7 +66,7 @@ Values are matched by equality, strings without regard to case. A LIST means any
 
 ## Where the client address comes from
 
-This is the setting that decides whether any of the above works, and it is the one thing only you can get right.
+Get this setting right, or none of the above works.
 
 By default the listener uses `$request->getClientIp()`, which honours Symfony's trusted-proxy configuration. That is the right fix behind a load balancer: set `framework.trusted_proxies` to the proxies actually in front of you and Symfony walks the chain for you. Without it, and behind one, every visitor looks like the load balancer, and that is the address that gets checked: VPN visitors pass unnoticed, and if it is a hosting address, a hosting rule blocks everyone. A load balancer in your own network usually has a private address, which the listener answers locally without a lookup, flagging nobody and logging a warning.
 
@@ -78,9 +78,9 @@ vpndetection:
     client_ip_header: CF-Connecting-IP
 ```
 
-A callable cannot live in YAML, so a header NAME is the config key. Anything more exotic — a chain depth, your own logic — means replacing the `vpndetection.listener` service, which is Symfony's own answer rather than a config key we would have to keep inventing.
+A callable cannot live in YAML, so a header NAME is the config key. Anything more exotic, a chain depth or your own logic, means replacing the `vpndetection.listener` service, which is Symfony's own answer rather than a config key we would have to keep inventing.
 
-`\VPNDetection\Symfony\Selectors::xff()` reads `X-Forwarded-For` directly, and `Selectors::xff(1)` counts one trusted hop from the right. Be aware that the left-most entry is whatever the caller sent, because proxies append to that header — it is only trustworthy when an edge you control overwrites it. Both are for a replaced listener service; prefer `framework.trusted_proxies`.
+`\VPNDetection\Symfony\Selectors::xff()` reads `X-Forwarded-For` directly, and `Selectors::xff(1)` counts one trusted hop from the right. The left-most entry is whatever the caller sent, since proxies append to that header, so trust it only when an edge you control overwrites it. Both are for a replaced listener service; prefer `framework.trusted_proxies`.
 
 If the address resolves to a private one, the middleware says so once each time the application boots, which under PHP-FPM is every request. That is expected locally and is the signal to fix your configuration anywhere else.
 
@@ -90,7 +90,7 @@ The request is let through, and the reason is on the answer's `error`. Our outag
 
 ## Cost and latency
 
-Answers are cached for an hour in your app's `cache.app` pool, keyed by a hash of your API key and the visitor's address, so a returning visitor costs nothing even under PHP-FPM, where the application is built afresh for every request. Private addresses never leave the process. A lookup is one request to our API, bounded at 2.5 seconds by default and not retried — on a request path, failing open quickly beats holding a visitor while we try again.
+Answers are cached for an hour in your app's `cache.app` pool, keyed by a hash of your API key and the visitor's address, so a returning visitor costs nothing even under PHP-FPM, where the application is built afresh for every request. Private addresses never leave the process. A lookup is one request to our API, bounded at 2.5 seconds by default and not retried: on a request path, failing open fast beats holding a visitor while we retry.
 
 Name another pool with `cache_pool`, or set it to `false` to keep answers in the client alone, which under PHP-FPM lasts one request:
 
