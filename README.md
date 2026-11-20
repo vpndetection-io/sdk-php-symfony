@@ -15,7 +15,7 @@ composer require vpndetection/symfony
 
 Requires PHP 8.2 or newer and Symfony 6.4, 7 or 8.
 
-You need an API key on a paid plan. Create one in the [console](https://app.vpndetection.io); without one a lookup is on Unlimited, the free plan, and leaves out the hosting, CDN and proxy flags, so a paid plan is what makes this usable in production rather than optional. A free account tries every field, 100 lookups a day.
+You need an API key on a paid plan. Create one in the [console](https://app.vpndetection.io); without one a lookup is on Unlimited, the free plan, and leaves out the hosting, CDN and proxy flags, so a paid plan is what makes this usable in production rather than optional. A free account tries every field.
 
 Register the bundle and configure it:
 
