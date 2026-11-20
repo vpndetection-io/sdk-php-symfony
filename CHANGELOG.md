@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 2.0.4 are described by their release commits.
 
+## 2.3.20 - 2026-11-20
+
+### Fixes
+
+- Require vpndetection/vpndetection 4.17.0: the network, service, company and abuse members ([`57542a6`](https://github.com/vpndetection-io/sdk-php-symfony/commit/57542a67e33329513b1f695a71208d43d4856e51))
+
 ## 2.3.19 - 2026-11-19
 
 ### Fixes
