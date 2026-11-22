@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 2.0.4 are described by their release commits.
 
+## 2.3.21 - 2026-11-22
+
+### Fixes
+
+- Require vpndetection/vpndetection 4.18.0: is_bot and bot, and the AS's country and RPKI status required ([`880b246`](https://github.com/vpndetection-io/sdk-php-symfony/commit/880b246b382e0866ee511ea9e6f2d9c59e98ae20))
+
 ## 2.3.20 - 2026-11-20
 
 ### Fixes
