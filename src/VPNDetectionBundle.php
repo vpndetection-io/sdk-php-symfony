@@ -36,6 +36,9 @@ final class VPNDetectionBundle extends AbstractBundle
                 ->enumNode('on_missing_field')
                     ->values(['warn', 'throw', 'ignore'])->defaultValue('warn')->end()
                 ->variableNode('block_condition')->defaultNull()->end()
+                // Send each request's own User-Agent with its lookup, and never
+                // refuse one whose answer's userAgent verdict is `verified`.
+                ->booleanNode('allow_bots')->defaultFalse()->end()
                 // A callable cannot live in YAML, so the common case - an edge that
                 // writes the address into its own header - is a header NAME instead.
                 // Anything more exotic means replacing the vpndetection.listener
@@ -79,6 +82,7 @@ final class VPNDetectionBundle extends AbstractBundle
             self::skip($config['skip_paths'] ?? []),
             null,
             self::store($config['cache_pool'] ?? null),
+            (bool) ($config['allow_bots'] ?? false),
         ]);
 
         $header = $config['client_ip_header'] ?? null;

@@ -48,7 +48,7 @@ final class VPNDetectionListener implements EventSubscriberInterface
             return;
         }
         $request = $event->getRequest();
-        $lookup = $this->core->evaluate($request);
+        $lookup = $this->core->evaluate($request, $request->headers->get('User-Agent'));
         if ($lookup === null) {
             return;
         }
