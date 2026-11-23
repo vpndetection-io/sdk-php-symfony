@@ -2,6 +2,16 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 2.0.4 are described by their release commits.
 
+## 2.4.0 - 2026-11-23
+
+### Features
+
+- Add allow_bots: send the request's User-Agent, and let a verified crawler through ([`b77297a`](https://github.com/vpndetection-io/sdk-php-symfony/commit/b77297a7d675aa3030d39657bdc0e68f75b4ee81))
+
+### Fixes
+
+- Require vpndetection/vpndetection 4.19.0: the user agent a lookup sends, and the middleware's allowBots ([`d58abd6`](https://github.com/vpndetection-io/sdk-php-symfony/commit/d58abd60ad28377c0107f9a963c860b476a54449))
+
 ## 2.3.21 - 2026-11-22
 
 ### Fixes
