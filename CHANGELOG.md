@@ -2,6 +2,13 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 2.0.4 are described by their release commits.
 
+## 2.4.1 - 2026-11-24
+
+### Fixes
+
+- Require vpndetection/vpndetection 4.19.1: a first_seen or last_seen that is not a day is refused ([`845ab88`](https://github.com/vpndetection-io/sdk-php-symfony/commit/845ab88b73ba535d8810f7e24b24326a1d3bf312))
+- Fix the README's setup failing every keyless request ([`70d1bca`](https://github.com/vpndetection-io/sdk-php-symfony/commit/70d1bcab3b47b4fb302248004567077332e2d0bf))
+
 ## 2.4.0 - 2026-11-23
 
 ### Features
