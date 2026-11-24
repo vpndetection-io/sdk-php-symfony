@@ -27,8 +27,10 @@ VPNDetection\Symfony\VPNDetectionBundle::class => ["all" => true],
 ```yaml
 # config/packages/vpndetection.yaml
 vpndetection:
-    api_key: "%env(VPNDETECTION_API_KEY)%"
+    api_key: "%env(default::VPNDETECTION_API_KEY)%"
 ```
+
+`default::` reads an unset `VPNDETECTION_API_KEY` as no key, so the bundle runs keyless until you set one; a plain `%env(VPNDETECTION_API_KEY)%` makes every request a 500 while the variable is unset.
 
 ```php
 use VPNDetection\Symfony\VPNDetectionListener;
@@ -71,7 +73,7 @@ Set `allow_bots` and the bundle sends each request's own `User-Agent` with its l
 ```yaml
 # config/packages/vpndetection.yaml
 vpndetection:
-    api_key: "%env(VPNDETECTION_API_KEY)%"
+    api_key: "%env(default::VPNDETECTION_API_KEY)%"
     allow_bots: true
     block_condition: { isHosting: true }
 ```
