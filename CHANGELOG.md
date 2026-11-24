@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 2.0.4 are described by their release commits.
 
+## 2.4.2 - 2026-11-24
+
+### Fixes
+
+- Require vpndetection/vpndetection 4.20.0: a condition on a list member matches any element ([`2ded6d5`](https://github.com/vpndetection-io/sdk-php-symfony/commit/2ded6d5e41833597a2131caff83cab0470da2be7))
+
 ## 2.4.1 - 2026-11-24
 
 ### Fixes
