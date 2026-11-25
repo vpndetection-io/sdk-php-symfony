@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 2.0.4 are described by their release commits.
 
+## 2.4.3 - 2026-11-25
+
+### Fixes
+
+- Require vpndetection/vpndetection 4.20.1: its README and doc comments name the Data plan, not the retired plans ([`ddfd5f8`](https://github.com/vpndetection-io/sdk-php-symfony/commit/ddfd5f8fc79548b8fb9b62ceedf9a3f560ab951e))
+
 ## 2.4.2 - 2026-11-24
 
 ### Fixes
