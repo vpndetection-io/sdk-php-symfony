@@ -2,6 +2,12 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 2.0.4 are described by their release commits.
 
+## 2.4.5 - 2026-11-26
+
+### Fixes
+
+- Require vpndetection/vpndetection 4.21.1: a condition on the verdict is no plan gap for a request that sent no agent ([`ad79374`](https://github.com/vpndetection-io/sdk-php-symfony/commit/ad793744e7043eff64b9b165a452513bbde10f19))
+
 ## 2.4.4 - 2026-11-26
 
 ### Features
