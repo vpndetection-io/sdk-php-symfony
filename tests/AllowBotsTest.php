@@ -6,6 +6,9 @@ namespace VPNDetection\Symfony\Tests;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\SimpleCache\CacheInterface;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Psr16Cache;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -36,8 +39,11 @@ final class AllowBotsTest extends TestCase
     /** @var list<string> */
     private array $warnings = [];
 
-    /** @param array<string, mixed> $config */
-    private function kernel(?string $verdict, array $config): HttpKernel
+    /**
+     * @param array<string, mixed> $config
+     * @param ?CacheInterface $pool The store the client keeps its answers in, where the framework's pool is one
+     */
+    private function kernel(?string $verdict, array $config, ?CacheInterface $pool = null): HttpKernel
     {
         $body = ['ip' => self::PEER, 'is_vpn' => false, 'is_hosting' => true];
         if ($verdict !== null) {
@@ -56,7 +62,9 @@ final class AllowBotsTest extends TestCase
         $options->replaceArgument(0, new Reference('test.client'));
         $options->replaceArgument(10, new Reference('test.on_warn'));
         $builder->compile();
-        $builder->set('test.client', new Client(new Options(cache: false, retries: 0, httpClient: $this->stub->client)));
+        $builder->set('test.client', new Client($pool === null
+            ? new Options(cache: false, retries: 0, httpClient: $this->stub->client)
+            : new Options(retries: 0, cacheStore: $pool, httpClient: $this->stub->client)));
         $builder->set('test.on_warn', function (string $m): void {
             $this->warnings[] = $m;
         });
@@ -92,6 +100,27 @@ final class AllowBotsTest extends TestCase
     {
         self::assertSame(200, self::visit($this->kernel('verified', ['allow_bots' => true])));
         self::assertSame(['user_agent' => self::GOOGLEBOT], $this->sent());
+    }
+
+    /**
+     * Under PHP-FPM each request builds the kernel and the listener in it, so the four agents an
+     * address may be looked up with have to be remembered in the client's store.
+     */
+    public function testTheBoundOnAnAddressesAgentsHoldsAcrossRequestsInTheClientsStore(): void
+    {
+        $pool = new Psr16Cache(new ArrayAdapter());
+        $agent = static fn (int $n): string => "Mozilla/5.0 (compatible; Examplebot/{$n}.0)";
+        $statuses = [];
+        for ($n = 1; $n <= 5; $n++) {
+            $kernel = $this->kernel('verified', ['allow_bots' => true, 'block_condition' => ['isHosting' => true]], $pool);
+            $statuses[] = self::visit($kernel, $agent($n));
+            $sent = array_map(static function ($request): array {
+                parse_str($request->getUri()->getQuery(), $query);
+                return $query;
+            }, $this->stub->requests);
+            self::assertSame($n <= 4 ? [['user_agent' => $agent($n)]] : [[]], $sent, "agent {$n}");
+        }
+        self::assertSame([200, 200, 200, 200, 403], $statuses, 'the fifth agent is past the bound, and none is sent');
     }
 
     /** @return array<string, array{0: string, 1: int}> */
