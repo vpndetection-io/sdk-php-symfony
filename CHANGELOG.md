@@ -2,6 +2,16 @@
 
 What each release changed for you, newest first. Each line is a commit's summary, linked to its full description and diff. Releases before 2.0.4 are described by their release commits.
 
+## 2.4.6 - 2026-11-27
+
+### Features
+
+- Require vpndetection/vpndetection 4.22.0: a keyless answer without the AS's type reads ([`e6315fa`](https://github.com/vpndetection-io/sdk-php-symfony/commit/e6315fa30ebbce840b05d44afc96e9153eb60312))
+
+### Fixes
+
+- allow_bots: an address's crawler agents are remembered across requests ([`ab5ada2`](https://github.com/vpndetection-io/sdk-php-symfony/commit/ab5ada2208a3c1db4a78934d0733dec564baa9b1))
+
 ## 2.4.5 - 2026-11-26
 
 ### Fixes
