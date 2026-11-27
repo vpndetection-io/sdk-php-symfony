@@ -252,6 +252,44 @@ final class ListenerTest extends TestCase
     }
 
     /**
+     * Unlimited leaves out the AS's `type` and `isBot`: a condition on either is warned about by its
+     * path and never blocks, while the same condition on an answer that serves it blocks.
+     */
+    public function testAMemberAKeylessAnswerLeavesOutIsReportedAndNeverBlocks(): void
+    {
+        $asn = [
+            'asn' => 9009, 'name' => 'M247 Europe SRL', 'domain' => 'm247global.com',
+            'prefix' => '146.70.116.0/24', 'country' => 'US', 'rpki_status' => 'valid',
+        ];
+        $unlimited = ['ip' => self::PUBLIC_IP, 'is_vpn' => false, 'asn' => $asn];
+        $paid = ['ip' => self::PUBLIC_IP, 'is_vpn' => false, 'is_bot' => true, 'asn' => [...$asn, 'type' => 'hosting']];
+        $cases = [
+            'asn.type' => [['asn' => ['type' => ['hosting', 'business']]], 'blockCondition names asn.type,'],
+            "asn.type ''" => [['asn' => ['type' => ['', 'hosting']]], 'blockCondition names asn.type,'],
+            'isBot' => [['isBot' => true], 'blockCondition names isBot,'],
+        ];
+        foreach ($cases as $name => [$condition, $message]) {
+            foreach ([[$unlimited, null, 1], [$paid, 403, 0]] as [$body, $status, $warned]) {
+                $warnings = [];
+                $listener = self::listener(new MwOptions(
+                    client: self::client(self::serving($body)),
+                    ipSelector: fn (Request $r) => self::PUBLIC_IP,
+                    blockCondition: $condition,
+                    onWarn: function (string $m) use (&$warnings): void {
+                        $warnings[] = $m;
+                    },
+                ));
+                $why = $name . (isset($body['is_bot']) ? ' on an answer that serves it' : ' on Unlimited');
+                self::assertSame($status, self::dispatch($listener, self::request())?->getStatusCode(), $why);
+                self::assertCount($warned, $warnings, $why);
+                if ($warned > 0) {
+                    self::assertStringContainsString($message, $warnings[0], $why);
+                }
+            }
+        }
+    }
+
+    /**
      * The bundle's wiring, compiled for real.
      *
      * A YAML key that silently produces no selector, or one the container cannot
