@@ -100,8 +100,11 @@ final class ReadmeSetupTest extends TestCase
         self::setVariable(null);
     }
 
-    /** @return list<array{path: string, authorization: ?string}> */
-    private static function visit(): array
+    /**
+     * @param array<string, mixed> $more Options on top of the README's, as the same YAML would set them
+     * @return list<array{path: string, authorization: ?string}>
+     */
+    private static function visit(array $more = [], string $peer = self::PUBLIC_IP, ?string $agent = null): array
     {
         @unlink(self::$dir . '/requests.jsonl');
         $builder = new ContainerBuilder();
@@ -112,6 +115,7 @@ final class ReadmeSetupTest extends TestCase
             'api_key' => self::readmeApiKey(),
             'base_url' => 'http://127.0.0.1:' . self::$port,
             'cache_pool' => false,
+            ...$more,
         ]], $builder);
         // A kernel's dumped container reads each `%env()%` when the service is built;
         // resolving them here, with the variable already set or unset, is the same.
@@ -125,7 +129,8 @@ final class ReadmeSetupTest extends TestCase
                 return new Response('ok');
             }
         };
-        $event = new RequestEvent($kernel, new Request(server: ['REMOTE_ADDR' => self::PUBLIC_IP]), HttpKernelInterface::MAIN_REQUEST);
+        $server = ['REMOTE_ADDR' => $peer] + ($agent === null ? [] : ['HTTP_USER_AGENT' => $agent]);
+        $event = new RequestEvent($kernel, new Request(server: $server), HttpKernelInterface::MAIN_REQUEST);
         $listener->onKernelRequest($event);
         self::assertNull($event->getResponse(), 'the visitor was refused');
 
@@ -154,5 +159,33 @@ final class ReadmeSetupTest extends TestCase
             [['path' => '/' . self::PUBLIC_IP, 'authorization' => null]],
             self::visit(),
         );
+    }
+
+    /**
+     * Local development behind no proxy: a bogon peer sending a crawler's agent is answered
+     * without asking the API, and its answer carries no verdict, which is no plan gap.
+     */
+    public function testABogonPeerWithACrawlerAgentIsNoPlanGapAndNeverReachesTheApi(): void
+    {
+        self::setVariable(self::KEY);
+        $log = tempnam(sys_get_temp_dir(), 'vpndetection-warnings');
+        $previous = ini_set('error_log', $log);
+        try {
+            foreach (['127.0.0.1', '10.0.0.1', '::1'] as $peer) {
+                foreach (['throw', 'warn'] as $action) {
+                    $reached = self::visit([
+                        'allow_bots' => true,
+                        'block_condition' => ['userAgent' => ['verdict' => 'spoofed']],
+                        'on_missing_field' => $action,
+                    ], $peer, 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)');
+                    self::assertSame([], $reached, "{$peer}, {$action}: a bogon reached the API");
+                }
+            }
+            self::assertStringNotContainsString('does not include', (string) file_get_contents($log));
+            self::assertStringContainsString('not a public address', (string) file_get_contents($log));
+        } finally {
+            ini_set('error_log', $previous === false ? '' : $previous);
+            @unlink($log);
+        }
     }
 }
